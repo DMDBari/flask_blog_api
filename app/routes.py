@@ -74,4 +74,4 @@ def create_post():
     post_data.append(new_post)
 
     # Return the newly created post dictionary with a 201 status code
-    return 'This is the create post route :)'
+    return new_post, 201
