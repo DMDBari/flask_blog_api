@@ -1,9 +1,4 @@
-from flask import Flask # Import the Flask class fomr the flask module
-
-
-# Create an instance of Flask called app which will be the central object
-app = Flask(__name__)
-
+from app import app
 
 # Define a route
 @app.route("/")
@@ -23,4 +18,4 @@ def test():
         }
         my_dicts.append(a_dict)
     
-    return my_dicts,
+    return my_dicts
