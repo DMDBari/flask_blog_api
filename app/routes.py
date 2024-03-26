@@ -1,13 +1,11 @@
-from flask import request
+from flask import request, render_template
 from app import app
 from fake_data.posts import post_data
 
 # Define a route
 @app.route("/")
 def index():
-    first_name = 'Dillon'
-    age = 31
-    return 'Hello ' + first_name + ' who is ' + str(age) + ' years old'
+    return render_template('index.html')
 
 
 # Post Endpoints
