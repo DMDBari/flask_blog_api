@@ -112,4 +112,26 @@ def create_post():
     return new_post.to_dict(), 201
 
 
+# Update Post Endpoint
+@app.route('/posts/<int:post_id>', methods=['PUT'])
+@token_auth.login_required()
+def edit_post(post_id):
+    # Check to see that they have a JSON body
+    if not request.is_json:
+        return {'error': 'Your content-type must be application/json'}, 400
+    # Let's find post in the db
+    post = db.session.get(Post, post_id)
+    if post is None:
+        return {'error': f"Post with ID #{post_id} does not exist"}, 404
+    # Get the current user based on the token
+    current_user = token_auth.current_user()
+    # Check if the current user is the author of the post
+    if current_user is not post.author:
+        return {'error': "This is not your post. You do not have permisson to edit"}, 403
+    
 
+    # Get the data form the request
+    data = request.json
+    # Pass that data in to the posts update method
+    post.update(**data)
+    return post.to_dict()
