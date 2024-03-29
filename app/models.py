@@ -15,6 +15,7 @@ class User(db.Model):
     posts = db.relationship('Post', back_populates='author')
     token = db.Column(db.String, index=True, unique=True)
     token_expiration = db.Column(db.DateTime(timezone=True))
+    comments = db.relationship('Comment', back_populates='user')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -64,6 +65,7 @@ class Post(db.Model):
     # In SQL - user_id INTEGER NOT NULL, FOREIGN KEY(user_id) REFERENCES user(id)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     author = db.relationship('User', back_populates='posts')
+    comments = db.relationship('Comment', back_populates='post')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -83,7 +85,8 @@ class Post(db.Model):
             "body": self.body,
             "dateCreated": self.date_created,
             "user_id": self.user_id,
-            "author": self.author.to_dict()
+            "author": self.author.to_dict(),
+            "comments": [comment.to_dict() for comment in self.comments]
         }
     
     def update(self, **kwargs):
@@ -93,3 +96,44 @@ class Post(db.Model):
             if key in allowed_fields:
                 setattr(self, key, value)
         self.save()
+
+    def delete(self):
+        db.session.delete(self) # deleting THIS object from the database
+        db.session.commit() # commiting our changes
+
+
+
+class Comment(db.Model):
+    # Create table
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String, nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    user = db.relationship('User', back_populates='comments')
+    post = db.relationship('Post', back_populates='comments')
+
+    # Insert Into
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.save()
+
+    def __repr__(self):
+        return f"<Comment {self.id}>"
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'body': self.body,
+            'dateCreated': self.date_created,
+            'post_id': self.post_id,
+            'user': self.user.to_dict()
+        }
