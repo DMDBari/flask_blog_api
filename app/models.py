@@ -91,7 +91,6 @@ class Post(db.Model):
     
     def update(self, **kwargs):
         allowed_fields = {'title', 'body'}
-
         for key, value in kwargs.items():
             if key in allowed_fields:
                 setattr(self, key, value)

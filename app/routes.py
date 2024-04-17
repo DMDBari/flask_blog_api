@@ -149,7 +149,7 @@ def delete_post(post_id):
     current_user = token_auth.current_user()
     # Check if the current user is the author of the post
     if current_user is not post.author:
-        return {'error': "This is not your post. You do not have permisson to delete"}, 403
+        return {'error': "This is not your post. You do not have permission to delete"}, 403
     
     # delete the post
     post.delete()
